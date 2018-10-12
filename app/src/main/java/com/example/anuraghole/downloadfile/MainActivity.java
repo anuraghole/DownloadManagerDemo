@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,8 @@ import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         String localUri = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
                         Log.i(TAG, "onReceive: localUri" + localUri);
                         Toast.makeText(context, "download complete", Toast.LENGTH_SHORT).show();
+                        installFile(localUri);
                     } else {
                         Toast.makeText(context, "File not Download properly", Toast.LENGTH_SHORT).show();
                     }
@@ -106,6 +110,30 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+
+    public void installFile(String localUri){
+        File toInstall = new File(localUri);
+        //Log.i("TAG", "onClick to Install if: "+toInstall);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                //Uri apkUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", toInstall);
+                Uri apkUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", toInstall);
+                Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                intent.setData(apkUri);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(intent);
+            } else {
+                Log.i("TAG", "onClick to Install else: "+localUri);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.parse(localUri), "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        }catch (Exception e){
+            Log.i(TAG, "installFile exception: "+ e);
+        }
+    }
 
 
 }
