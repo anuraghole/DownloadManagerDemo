@@ -26,6 +26,7 @@ import android.widget.Toast;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String FILE_PROVIDER = "com.example.anuraghole.downloadfile.provider";
 
     public static final String FILE_URL = "https://drive.google.com/uc?authuser=0&id=15d0KjuorIE_Bu0XurF8R61nYjYntqZQ8&export=download";
     //public  static final String FILE_URL="https://s3-us-west-2.amazonaws.com/uw-s3-cdn/wp-content/uploads/sites/6/2017/11/04133712/waterfall-750x500.jpg";
@@ -112,26 +113,35 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    public void installFile(String localUri){
+    public void installFile(String localUri) {
         File toInstall = new File(localUri);
-        //Log.i("TAG", "onClick to Install if: "+toInstall);
+        Log.i("TAG", "onClick to Install: " + toInstall);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                //Uri apkUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", toInstall);
-                Uri apkUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", toInstall);
+
+                File file=new File(Uri.parse(localUri).getPath());
+                Log.i(TAG, "installFile: file "+file);
+                Log.i(TAG, "installFile: fileExist "+file.exists());
+                Uri apkUri = FileProvider.getUriForFile(this,
+                        FILE_PROVIDER,file);
+
+                // Uri apkUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", toInstall);
+                Log.i(TAG, "installFile: apkURi " + apkUri);
                 Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
                 intent.setData(apkUri);
+                Log.i("TAG", "onClick to Install if: " + localUri);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
+
             } else {
-                Log.i("TAG", "onClick to Install else: "+localUri);
+                Log.i("TAG", "onClick to Install else: " + localUri);
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.parse(localUri), "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-        }catch (Exception e){
-            Log.i(TAG, "installFile exception: "+ e);
+        } catch (Exception e) {
+            Log.i(TAG, "installFile exception: " + e);
         }
     }
 
