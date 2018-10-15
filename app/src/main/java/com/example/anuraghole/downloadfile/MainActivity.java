@@ -124,12 +124,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "installFile: fileExist "+file.exists());
                 Uri apkUri = FileProvider.getUriForFile(this,
                         FILE_PROVIDER,file);
-
-                // Uri apkUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", toInstall);
                 Log.i(TAG, "installFile: apkURi " + apkUri);
-                Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-                intent.setData(apkUri);
-                Log.i("TAG", "onClick to Install if: " + localUri);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
 
